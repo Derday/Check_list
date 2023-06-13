@@ -38,7 +38,7 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
 
         Cursor cur = mdb.rawQuery("SELECT * FROM notes_table", null);
         while (cur.moveToNext()){
-            Note note = new Note(cur.getInt(0), cur.getString(1), cur.getString(2), cur.getInt(4));
+            Note note = new Note(cur.getInt(0), cur.getString(1), cur.getString(2), cur.getInt(3));
             notes.add(note);
         }
         return notes;
