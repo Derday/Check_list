@@ -39,13 +39,7 @@ public class Note {
         this.description = description;
     }
 
-    public boolean isFinished() {
-        if (finished == 1){
-            return true;
-        } else {
-            return false;
-        }
-    }
+    public int isFinished() {return finished;}
 
     public void setFinished(int finished) {
         this.finished = finished;

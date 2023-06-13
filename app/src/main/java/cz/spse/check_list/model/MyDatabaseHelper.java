@@ -42,7 +42,8 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
             notes.add(note);
         }
         return notes;
-    }    public void changeState(Note note){
+    }
+    public void changeState(Note note){
         int lastState = 1;
         SQLiteDatabase mdb = this.getReadableDatabase();
         Cursor cur = mdb.rawQuery("SELECT finished FROM notes_table WHERE id == "+note.getId()+";", null);
@@ -58,46 +59,54 @@ public class MyDatabaseHelper extends SQLiteOpenHelper {
         mValues.put("NAME", note.getName());
         mValues.put("DESCRIPTION", note.getDescription());
         mValues.put("FINISHED", lastState);
-        mdb.update("notes_table", mValues, "_id = ?", new String[]{note.getId()+""});
+        mdb.update("notes_table", mValues, "id = ?", new String[]{note.getId()+""});
 
-
-    }
-    public void update(Note note){
-        SQLiteDatabase mdb = this.getWritableDatabase();
-        ContentValues mValues = new ContentValues();
-        mValues.put("NAME", note.getName());
-        mValues.put("DESCRIPTION", note.getDescription());
-        mValues.put("FINISHED", note.isFinished());
-
-        mdb.update("notes_table", mValues, "_id = ?", new String[]{note.getId()+""});
 
     }
 
     public Note nextNote(){
+        Note note = new Note();
         SQLiteDatabase mdb = this.getReadableDatabase();
-        Cursor cur = mdb.rawQuery("SELECT * FROM notes_table WHERE finished == 0 LIMIT 1", null);
-        Note note = new Note(cur.getInt(0), cur.getString(1), cur.getString(2), cur.getInt(4));
+        Cursor cur = mdb.rawQuery("SELECT * FROM notes_table WHERE finished == 0 LIMIT 1;", null);
+        if (cur.moveToNext()) {
+            note = new Note(cur.getInt(0), cur.getString(1), cur.getString(2), cur.getInt(3));
+        } else {
+            note.setId(-1);
+        }
+
         return note;
     }
 
-    public boolean mInsert(Note note){
+    public void mInsert(Note note){
         SQLiteDatabase mdb = this.getWritableDatabase();
         ContentValues mValues = new ContentValues();
 
         mValues.put("NAME", note.getName());
         mValues.put("DESCRIPTION", note.getDescription());
         mValues.put("FINISHED", note.isFinished());
-        // id se generuje automaticky
 
-        long result = mdb.insert("notes_table", null, mValues);
-        if (result == -1) return false;
-        else return true;
+        if (note.getId() == -1){
+            mdb.insert("notes_table", null, mValues);
+        } else{
+            mValues.put("ID", note.getId());
+            mdb.update("notes_table", mValues, "id = ?", new String[]{note.getId()+""});
+        }
+
+
     }
 
     public void mDelete(Note note){
         SQLiteDatabase mdb = this.getWritableDatabase();
-        mdb.delete("persons_table", "id = ?",
+        mdb.delete("notes_table", "id = ?",
                 new String[]{note.getId()+""});
+    }
+
+    public Note getNote(int id){
+        SQLiteDatabase mdb = this.getReadableDatabase();
+        Cursor cur = mdb.rawQuery("SELECT * FROM notes_table WHERE id == "+id, null);
+        cur.moveToNext();
+        Note note = new Note(cur.getInt(0), cur.getString(1), cur.getString(2), cur.getInt(3));
+        return note;
     }
 
 }
